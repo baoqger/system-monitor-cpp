@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iterator>
 #include <vector>
+#include <unistd.h>
 
 void streamInterator() {
     std::string fileName{"./test.txt"};
@@ -32,5 +33,7 @@ int main() {
     std::cout << h << std::endl;
     std::cout << m << std::endl;
     std::cout << s << std::endl;
+    
+    std::cout << "sysconf(_SC_CLK_TCK): " << sysconf(_SC_CLK_TCK) << std::endl;
     return 0;
 }
