@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <iterator>
 
 #include "linux_parser.h"
 
@@ -91,7 +92,19 @@ float LinuxParser::MemoryUtilization() {
 }
 
 // TODO: Read and return the system uptime
-long LinuxParser::UpTime() { return 0; }
+long int LinuxParser::UpTime() {
+  std::ifstream stream{kProcDirectory + kUptimeFilename};
+  if(!stream.is_open()) {
+    std::cout << "failed to open proc/uptime file" << std::endl;
+  }
+  std::string line;
+  std::getline(stream, line);
+  std::istringstream streamline{line};
+
+  std::istream_iterator<string> beg{streamline}, end;
+  std::vector<string> values{beg, end};
+  return std::stoi(values[0]);
+}
 
 // TODO: Read and return the number of jiffies for the system
 long LinuxParser::Jiffies() { return 0; }
