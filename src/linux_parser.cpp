@@ -13,7 +13,6 @@ using std::string;
 using std::to_string;
 using std::vector;
 
-// DONE: An example of how to read data from the filesystem
 string LinuxParser::OperatingSystem() {
   string line;
   string key;
@@ -36,7 +35,6 @@ string LinuxParser::OperatingSystem() {
   return value;
 }
 
-// DONE: An example of how to read data from the filesystem
 string LinuxParser::Kernel() {
   string os, kernel, version;
   string line;
@@ -49,7 +47,6 @@ string LinuxParser::Kernel() {
   return version;
 }
 
-// BONUS: Update this to use std::filesystem
 vector<int> LinuxParser::Pids() {
   vector<int> pids;
   DIR* directory = opendir(kProcDirectory.c_str());
@@ -69,7 +66,6 @@ vector<int> LinuxParser::Pids() {
   return pids;
 }
 
-// TODO: Read and return the system memory utilization
 float LinuxParser::MemoryUtilization() { 
     std::ifstream stream{kProcDirectory + kMeminfoFilename};
 
@@ -92,7 +88,6 @@ float LinuxParser::MemoryUtilization() {
     return (totalMemo - freeMemo) / static_cast<float>(totalMemo);  
 }
 
-// TODO: Read and return the system uptime
 long int LinuxParser::UpTime() {
   std::ifstream stream{kProcDirectory + kUptimeFilename};
   if(!stream.is_open()) {
@@ -107,7 +102,6 @@ long int LinuxParser::UpTime() {
   return std::stoi(values[0]);
 }
 
-// TODO: Read and return CPU utilization
 vector<string> LinuxParser::CpuUtilization() { 
     std::vector<std::string> cpu_utils; 
 
