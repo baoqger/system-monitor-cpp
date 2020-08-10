@@ -88,6 +88,7 @@ float LinuxParser::MemoryUtilization() {
     return (totalMemo - freeMemo) / static_cast<float>(totalMemo);  
 }
 
+// system uptime measured in seconds
 long int LinuxParser::UpTime() {
   std::ifstream stream{kProcDirectory + kUptimeFilename};
   if(!stream.is_open()) {
@@ -112,13 +113,11 @@ vector<string> LinuxParser::CpuUtilization() {
     }
     std::string line;
     std::getline(stream, line); // read the first line of proc/stat
-    // std::cout << "first line of proc/stat" <<  line << std::endl; 
 
     std::istringstream linestream{line};
     std::string cpu_time;
     int count {0};
     while (linestream >> cpu_time) {
-        // std::cout << "each cpu time: " << cpu_time << std::endl;
         if (count > 0) {
             cpu_utils.push_back(cpu_time);
         }
@@ -134,18 +133,39 @@ int LinuxParser::TotalProcesses() { return 0; }
 // TODO: Read and return the number of running processes
 int LinuxParser::RunningProcesses() { return 0; }
 
-// TODO: Read and return the number of jiffies for the system
+// not used
 long LinuxParser::Jiffies() { return 0; }
 
-// TODO: Read and return the number of active jiffies for a PID
-// REMOVE: [[maybe_unused]] once you define the function
+// not used
 long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
 
-// TODO: Read and return the number of active jiffies for the system
+// not used
 long LinuxParser::ActiveJiffies() { return 0; }
 
-// TODO: Read and return the number of idle jiffies for the system
+// not used
 long LinuxParser::IdleJiffies() { return 0; }
+
+// cpu util percentage for pid
+float LinuxParser::Cpu(int pid) {
+  std::string line, value;
+  float result;
+  std::ifstream stream{kProcDirectory + std::to_string(pid) + kStatFilename};
+  std::getline(stream, line);
+  std::istringstream buf{line};
+  std::istream_iterator<string> beg(buf), end;
+  std::vector<string> values(beg, end);
+  long utime = UpTime(pid); // proc uptime
+  float stime = std::stof(values[14]);
+  float cutime = std::stof(values[15]);
+  float cstime = std::stof(values[16]);
+  float starttime = std::stof(values[21]);
+  long uptime = UpTime(); // measured in seconds
+  float freq = sysconf(_SC_CLK_TCK);
+  float total_time = utime + stime + cutime + cstime;
+  float seconds = uptime - (starttime/freq);
+  result = 100.0*((total_time/freq)/seconds);
+  return result;
+}
 
 string LinuxParser::Command(int pid) { 
   string line;
@@ -214,7 +234,7 @@ long LinuxParser::UpTime(int pid) {
   std::istringstream buf(line);
   std::istream_iterator<std::string> beg(buf), end;
   std::vector<std::string> values(beg, end);
-  // sysconf(_SC_CLK_TCK) the number of clock ticks per second
-  result = std::stoi(values[13])/sysconf(_SC_CLK_TCK);
+  // sysconf(_SC_CLK_TCK): the number of clock ticks per second
+  result = std::stoi(values[13])/sysconf(_SC_CLK_TCK); // convert clock ticks to seconds
   return result;
 }
