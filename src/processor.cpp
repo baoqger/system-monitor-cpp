@@ -2,7 +2,6 @@
 #include "processor.h"
 #include "linux_parser.h"
 
-// TODO: Return the aggregate CPU utilization
 float Processor::Utilization() { 
     int totalCPUTime {0};
     float cpu_percentage {1.4f};    
