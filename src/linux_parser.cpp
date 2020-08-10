@@ -127,11 +127,35 @@ vector<string> LinuxParser::CpuUtilization() {
     return cpu_utils;
 }
 
-// TODO: Read and return the total number of processes
-int LinuxParser::TotalProcesses() { return 0; }
 
-// TODO: Read and return the number of running processes
-int LinuxParser::RunningProcesses() { return 0; }
+int LinuxParser::TotalProcesses() { 
+  std::vector<int> pids = Pids();
+  return pids.size();
+}
+
+int LinuxParser::RunningProcesses() {
+  std::vector<int> pids = Pids();
+  std::vector<int> runningPids;
+  for(auto pid: pids) {
+    std::ifstream stream{kProcDirectory + std::to_string(pid) + kStatusFilename};
+    std::string line;
+    std::string name{"State"}, runningStatus{"R"};
+    std::string result;
+    while(std::getline(stream, line)) {
+      if(line.compare(0, name.size(), name) == 0) {
+        std::istringstream buf{line};
+        std::istream_iterator<string> beg(buf), end;
+        std::vector<string> values(beg, end);
+        result = values[1];
+        if (result == runningStatus) {
+          runningPids.push_back(pid);
+        }
+        break;
+      }
+    }
+  }
+  return runningPids.size();
+}
 
 // not used
 long LinuxParser::Jiffies() { return 0; }
